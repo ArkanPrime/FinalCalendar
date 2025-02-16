@@ -16,7 +16,7 @@ class EventAdapter(private var events: MutableList<Event>,
     class EventViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvTitle: TextView = view.findViewById(R.id.tvEventTitle)
         val tvTime: TextView = view.findViewById(R.id.tvEventTime)
-        val container: MaterialCardView = view.findViewById(R.id.eventCard) // Correction ici
+        val container: MaterialCardView = view.findViewById(R.id.eventCard)
     }
 
 

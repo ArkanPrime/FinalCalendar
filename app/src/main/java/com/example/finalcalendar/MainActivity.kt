@@ -17,19 +17,20 @@ import java.util.Calendar
 import androidx.recyclerview.widget.ItemTouchHelper
 
 class MainActivity : AppCompatActivity() {
-
+    // declaration des composants UI
     private lateinit var calendarView: CalendarView
     private lateinit var recyclerView: RecyclerView
     private lateinit var eventAdapter: EventAdapter
     private lateinit var fabAddEvent: FloatingActionButton
-
-    private val eventsData = mutableMapOf<String, MutableList<Event>>()
-    private val eventDays = mutableListOf<EventDay>()
+    // Stockage des événements par jour
+    private val eventsData = mutableMapOf<String, MutableList<Event>>() // association date - liste d'événements
+    private val eventDays = mutableListOf<EventDay>() //  Liste des jours marqués dans le calendrier
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Initialisation des composants UI
         calendarView = findViewById(R.id.calendarView)
         recyclerView = findViewById(R.id.recyclerViewEvents)
 
@@ -40,6 +41,8 @@ class MainActivity : AppCompatActivity() {
         // Définir une couleur par défaut pour l'initialisation
         val defaultColor = ContextCompat.getColor(this, getColorForDayOfWeek(Calendar.MONDAY))
 
+
+        // Initialisation de l'adaptateur d'événements avec une action d'édition sur le longpress
         eventAdapter = EventAdapter(mutableListOf(), defaultColor) { event, position ->
             val intent = Intent(this, EventEditorActivity::class.java)
             intent.putExtra("event", event) // Envoyer l'événement à modifier
@@ -48,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         }
         recyclerView.adapter = eventAdapter
 
+        //gestion du swipe pour supprimer
         val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 return false
@@ -72,6 +76,8 @@ class MainActivity : AppCompatActivity() {
         })
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
+
+        // gestion du click sur le calendrier sur un jour
         calendarView.setOnCalendarDayClickListener(object : OnCalendarDayClickListener {
             override fun onClick(calendarDay: CalendarDay) {
                 val dateKey = getDateKey(calendarDay.calendar)
@@ -87,12 +93,15 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+
+        //gestion de l'ajout d'un événement
+
         fabAddEvent.setOnClickListener {
             val selectedDate = calendarView.selectedDates.firstOrNull() ?: Calendar.getInstance()
             val dateKey = getDateKey(selectedDate)
 
             val intent = Intent(this, EventEditorActivity::class.java)
-            intent.putExtra("selectedDate", dateKey) // Passer la date sélectionnée
+            intent.putExtra("selectedDate", dateKey)
             startActivityForResult(intent, 1)
         }
     }
@@ -137,6 +146,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    //met a jour l'affichage du callendrier avec les evenements
     private fun getDateKey(calendar: Calendar): String {
         return "${calendar.get(Calendar.DAY_OF_MONTH)}-${calendar.get(Calendar.MONTH) + 1}-${calendar.get(Calendar.YEAR)}"
     }
@@ -154,7 +165,7 @@ class MainActivity : AppCompatActivity() {
 
             if (drawable != null) {
                 drawable.setTint(ContextCompat.getColor(this, colorRes))
-                eventDays.add(EventDay(calendar, drawable)) // Appliquer l'icône colorée
+                eventDays.add(EventDay(calendar, drawable))
             } else {
                 Log.e("ERROR", "Drawable introuvable pour ic_event_marker")
             }
@@ -162,6 +173,8 @@ class MainActivity : AppCompatActivity() {
         calendarView.setEvents(eventDays)
     }
 
+
+    //renvoie la couleur en fonction du jour de la semaine
     private fun getColorForDayOfWeek(dayOfWeek: Int): Int {
         return when (dayOfWeek) {
             Calendar.MONDAY -> R.color.blue
@@ -174,6 +187,9 @@ class MainActivity : AppCompatActivity() {
             else -> R.color.gray
         }
     }
+
+
+    // Convertit une clé de date en objet Calendar
 
     private fun getCalendarFromKey(key: String): Calendar {
         val parts = key.split("-").map { it.toInt() }
